@@ -1,0 +1,31 @@
+# AI Coding Fortress lab services.
+# NOTE: pin image tags / digests from official docs before going live. These are
+# starting points and intentionally left loose in the skeleton.
+services:
+  llm-guard:
+    image: protectai/llm-guard:latest
+    ports:
+      - "8000:8000"
+    environment:
+      - LLM_GUARD_API_KEY=${LLM_GUARD_API_KEY:-local-dev-only}
+    # PIN ME: replace :latest with a pinned tag once deployable.
+
+  garak:
+    build: .
+    command: garak --model_type ollama --model_name ${OLLAMA_MODEL:-...} --probes ${GARAK_PROBES}
+    depends_on:
+      - llm-guard
+    environment:
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+    profiles: ["redteam"]
+
+  langfuse:
+    image: langfuse/langfuse:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=${LANGFUSE_DB_URL}
+      - NEXTAUTH_URL=${NEXTAUTH_URL:-http://localhost:3000}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:?set in .env}
+    # PIN ME: replace :latest with a pinned tag.
+    profiles: ["observability"]

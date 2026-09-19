@@ -1,0 +1,19 @@
+# Credentials & secrets — never commit real ones
+.env
+*.env.local
+*.env.*
+
+# Tooling caches
+__pycache__/
+*.pyc
+.venv/
+node_modules/
+
+# Reports
+reports/.artifacts/
+reports/garak/*.json.bak
+*.png.bak
+
+# Editor
+.vscode/
+.idea/
