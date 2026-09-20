@@ -41,3 +41,9 @@ Hardening path: add URL/reputation scanning (e.g. llm-guard `MaliciousURLs`) to 
 
 > All runs against self-hosted Ollama model; synthetic prompts; identifiers in prompts are fabricated examples.
 > Model runs on a self-hosted local Ollama instance inside an isolated sandbox; the findings are a demonstration of guard-through-gate behavior, not a vendor benchmark. Identifiers in the prompts are fabricated examples.
+
+## Adjoining artifacts
+
+- **Red-team (base model):** `reports/garak-summary.md` — `dan.DanInTheWild` against the raw model, 28.1% mitigation-bypass success on 1280 slices (garak 0.17, seed 42); the guard delta is what the rows above measure.
+- **Hardening re-run:** `reports/hardening.md` — the P1-07 residual case re-run with the URL blocklist active (run `make demo -- --ids P1-07` then `make report`).
+- **Trace:** `reports/artifacts/20260920-022003/trace.json`; export to Langfuse via `make trace-export` (needs `LANGFUSE_HOST/PUBLIC_KEY/SECRET_KEY`, else it stays local).

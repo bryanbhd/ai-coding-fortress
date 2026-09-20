@@ -12,7 +12,8 @@ node_modules/
 # Reports
 reports/artifacts/
 reports/.artifacts/
-reports/garak/*.json.bak
+reports/garak/*.jsonl
+reports/garak/*.html
 *.png.bak
 
 # Editor

@@ -1,4 +1,4 @@
-.PHONY: up demo report clean publish-check
+.PHONY: up demo report clean publish-check trace-export
 
 up:
 	@echo "==> Booting LLM Guard + garak worker"
@@ -6,11 +6,17 @@ up:
 
 demo:
 	@echo "==> Running secured agent loop (sandbox only)"
-	python3 scripts/run_demo.py
+	.venv/bin/python scripts/run_demo.py
 
 report:
 	@echo "==> Rendering findings report"
-	python3 scripts/render_report.py reports/findings.md
+	.venv/bin/python scripts/render_report.py
+	@echo "==> Rendering hardening re-run"
+	.venv/bin/python scripts/render_hardening.py
+
+trace-export:
+	@echo "==> Exporting run trace to Langfuse (skips if no creds)"
+	.venv/bin/python scripts/export_trace.py
 
 clean:
 	@echo "==> Tearing down lab"

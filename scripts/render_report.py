@@ -22,6 +22,10 @@ def latest_run() -> Path:
     runs = sorted(REPORTS_DIR.glob("findings-*.json"))
     if not runs:
         raise SystemExit("no findings yet — run `make demo` first")
+    for p in reversed(runs):
+        data = json.loads(p.read_text())
+        if len(data.get("results", [])) > 1:
+            return p
     return runs[-1]
 
 
@@ -128,6 +132,17 @@ def main() -> None:
     out.append("> Model runs on a self-hosted local Ollama instance inside an isolated sandbox; the findings "
                "are a demonstration of guard-through-gate behavior, not a vendor benchmark. Identifiers in the "
                "prompts are fabricated examples.")
+
+    out.append("")
+    out.append("## Adjoining artifacts")
+    out.append("")
+    out.append("- **Red-team (base model):** `reports/garak-summary.md` — `dan.DanInTheWild` against the raw "
+               "model, 28.1% mitigation-bypass success on 1280 slices (garak 0.17, seed 42); the guard delta is "
+               "what the rows above measure.")
+    out.append("- **Hardening re-run:** `reports/hardening.md` — the P1-07 residual case re-run with the URL "
+               "blocklist active (run `make demo -- --ids P1-07` then `make report`).")
+    out.append(f"- **Trace:** `{m.get('artifacts_dir')}/trace.json`; export to Langfuse via `make trace-export` "
+               "(needs `LANGFUSE_HOST/PUBLIC_KEY/SECRET_KEY`, else it stays local).")
 
     target = REPORTS_DIR / "findings.md"
     target.write_text("\n".join(out) + "\n", encoding="utf-8")

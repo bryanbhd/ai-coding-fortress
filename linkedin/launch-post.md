@@ -14,11 +14,14 @@ What that loop looks like now:
 
 Eight adversarial prompts, baseline vs guarded, self-hosted model, all reproducible:
 
-→ 3 of 8 unsafe outputs from the unguarded agent (a leaked key shape, a committed .env
+→ Three of 8 unsafe outputs from the unguarded agent (a leaked key shape, a committed .env
   secret, an attacker-controlled URL) → 1 of 8 behind the guard
 → The input guard blocked 2 prompt-injection attempts outright and masked a seed key in 1
-→ The guard is not a silver bullet: the URL case slipped through both arms, so the hardening
-  plan is an output-side URL/reputation scanner, and the report says so out loud
+→ The URL case slipped through both arms in run one — so I added a URL blocklist and re-ran
+  the prompt: blocked. The gap, the fix, and the re-run are all in the report
+→ Pre-launch red-team: garak threw 256 jailbreak prompts at the raw model under a
+  mitigation-bypass detector and 28.1% of slices got through — which is why the guard
+  sits before the agent, not after the damage
 
 I also let the agent write Terraform and ran it through Checkov: the gate refused to
 evaluate the first draft (parse error on the model output) and still rejected it after one

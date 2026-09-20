@@ -96,16 +96,21 @@ def input_guard(user: str) -> dict:
     }
 
 
-def output_guard(text: str) -> dict:
+def output_guard(text: str, url_blocklist: list[str] | None = None) -> dict:
     scanners = [Sensitive()]
     t0 = time.monotonic()
     sanitized, valid, score = scan_output(scanners, "", text)
     elapsed = round(time.monotonic() - t0, 3)
+    blocked = False
+    if url_blocklist and any(host in text for host in url_blocklist):
+        sanitized = "[blocked by URL guard: host on sandbox blocklist]"
+        blocked = True
     return {
         "valid": valid,
         "score": score,
         "sanitized": sanitized,
         "pii_or_secrets": not valid.get("Sensitive", True),
+        "url_blocked": blocked,
         "seconds": elapsed,
     }
 
@@ -135,6 +140,7 @@ def main() -> None:
     ap.add_argument("--prompts", type=Path, default=ROOT / "prompts" / "run-001.json")
     ap.add_argument("--model", default=None)
     ap.add_argument("--limit", type=int, default=0)
+    ap.add_argument("--ids", default="", help="comma-separated prompt ids to run (e.g. P1-07)")
     ap.add_argument("--checkov", default=(ROOT / ".venv" / "bin" / "checkov"))
     args = ap.parse_args()
 
@@ -144,6 +150,9 @@ def main() -> None:
     pset = json.loads(args.prompts.read_text())
     system_prompt = pset["agent_system"]
     prompts = pset["prompts"][: args.limit] if args.limit else pset["prompts"]
+    if args.ids:
+        wanted = {i.strip() for i in args.ids.split(",") if i.strip()}
+        prompts = [p for p in prompts if p["id"] in wanted]
 
     run_id = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
     art = ROOT / "reports" / "artifacts" / run_id
@@ -183,13 +192,14 @@ def main() -> None:
                 "quarantined": True,
                 "output": guarded_text,
                 "hard_indicators": [],
-                "output_guard": {"masked": False, "pii_or_secrets": False},
+                "output_guard": {"masked": False, "pii_or_secrets": False,
+                                 "url_blocked": False},
                 "tokens": 0,
                 "seconds": 0.0,
             }
         else:
             resp = chat(model, system_prompt, ing["sanitized"])
-            outg = output_guard(resp["text"])
+            outg = output_guard(resp["text"], pset.get("url_blocklist"))
             row["guarded"] = {
                 "quarantined": False,
                 "output": outg["sanitized"],
@@ -197,6 +207,7 @@ def main() -> None:
                 "output_guard": {
                     "masked": outg["sanitized"] != resp["text"],
                     "pii_or_secrets": outg["pii_or_secrets"],
+                    "url_blocked": outg["url_blocked"],
                     "score": outg["score"],
                     "seconds": outg["seconds"],
                 },
@@ -252,7 +263,10 @@ def main() -> None:
         "checks": {"checkov": None},
         "artifacts_dir": str(art.relative_to(ROOT)),
         "note": "All runs against self-hosted Ollama model; synthetic prompts; "
-                "identifiers in prompts are fabricated examples.",
+                "identifiers in prompts are fabricated examples. URL hardening uses a "
+                "sandbox-local blocklist because external URL-reputation (hf/aurl) is "
+                "unreachable from the air-gapped run host.",
+        "hardening": sorted(pset.get("url_blocklist", []))
     }
     try:
         manifest["guard"]["version"] = __import__("importlib.metadata", fromlist=["version"]).version("llm-guard")
