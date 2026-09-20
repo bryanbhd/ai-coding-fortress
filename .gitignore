@@ -10,6 +10,7 @@ __pycache__/
 node_modules/
 
 # Reports
+reports/artifacts/
 reports/.artifacts/
 reports/garak/*.json.bak
 *.png.bak
