@@ -8,9 +8,9 @@ and red-teamed the agent itself — all inside my own sandbox.
 What that loop looks like now:
 
 → Input guard (prompt injection / PII / secrets) at the boundary
-→ The agent generates, a judge reviews, a CI gate (Checkov + SonarQube) rejects bad output
+→ The agent generates, a Checkov gate rejects bad IaC output and forces a repair pass
 → Seen through, and fixed, in the same loop
-→ Every decision traced in Langfuse — because "it's fine" isn't a security finding; evidence is
+→ Every decision recorded in a per-run trace — because "it's fine" isn't a security finding; evidence is
 
 Eight adversarial prompts, baseline vs guarded, self-hosted model, all reproducible:
 

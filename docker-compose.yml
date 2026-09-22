@@ -1,18 +1,23 @@
-# AI Coding Fortress lab services.
+# AI Coding Fortress lab services — OPTIONAL / not the reproduction path.
+# The findings in reports/ and linkedin/article.md were produced by scripts/run_demo.py
+# calling llm-guard as an in-process Python library and garak as a direct CLI call
+# (see README Quickstart). This compose file exists only for anyone who wants LLM Guard
+# running as a real hosted service instead; it is not required for `make demo`/`make report`.
 # NOTE: pin image tags / digests from official docs before going live. These are
 # starting points and intentionally left loose in the skeleton.
 services:
   llm-guard:
-    image: protectai/llm-guard:latest
+    image: laiyer/llm-guard-api:latest
     ports:
       - "8000:8000"
     environment:
-      - LLM_GUARD_API_KEY=${LLM_GUARD_API_KEY:-local-dev-only}
+      # The laiyer/llm-guard-api image reads AUTH_TOKEN, not LLM_GUARD_API_KEY.
+      - AUTH_TOKEN=${AUTH_TOKEN:-local-dev-only}
     # PIN ME: replace :latest with a pinned tag once deployable.
 
   garak:
     build: .
-    command: garak --model_type ollama --model_name ${OLLAMA_MODEL:-...} --probes ${GARAK_PROBES}
+    command: garak --model_type ollama --model_name ${OLLAMA_MODEL:?set in .env} --probes ${GARAK_PROBES}
     depends_on:
       - llm-guard
     environment:

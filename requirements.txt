@@ -1,0 +1,10 @@
+# Pinned to what actually produced the published findings (reports/, linkedin/article.md).
+garak==0.17.0
+llm-guard==0.3.16
+checkov==3.2.426
+requests==2.34.2
+
+# Optional — only needed if you set real LANGFUSE_* creds in .env and run
+# `make trace-export`. Without it, trace.json is still written locally and
+# `scripts/export_trace.py` no-ops cleanly.
+# langfuse

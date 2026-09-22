@@ -28,7 +28,7 @@ after a fix or 30 days, whichever is first.
 Applied to **anything** that leaves this sandbox (repo, posts, published reports). Originals
 stay in the sandbox; only scrubbed copies get published.
 
-1. Keep original artifacts (garak runs, DefectDojo exports, traces) intact locally for
+1. Keep original artifacts (garak runs, findings JSON, trace.json) intact locally for
    reproduction — never destroy them.
 2. Redact before publishing:
    - Keys/tokens: AWS-style IDs, JWTs, bearer tokens, `pk-`/`sk-` prefixes, passwords

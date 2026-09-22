@@ -1,9 +1,9 @@
 # AI Coding Fortress
 
 A **reproducible lab** that secures an AI coding loop — an autonomous agent that writes
-and ships code, wrapped in input/output guards, CI security gates, observability, and a
-red-team harness. Every attack in this repo is run **against models and services I host
-myself, in my own sandbox.** No third-party systems are touched.
+and ships code, wrapped in input/output guards, an IaC security gate, optional
+observability, and a red-team harness. Every attack in this repo is run **against models
+and services I host myself, in my own sandbox.** No third-party systems are touched.
 
 The output is a verifiable findings report you can attach to anything you publish.
 
@@ -26,53 +26,75 @@ the loop in the right tools.
 ## Architecture
 
 ```
-prompt ──> LLM Guard ──> local coding agent (Ollama)   # input: injection/PII/secrets
-              ─────────────│
-              Agentic loop: generate → judge → promote
-              ─────────────│
-           code diff    IaC output    LLM trace
-              │              │            │
-        LLM Guard        Checkov      Langfuse
-        (output)         (gate)       → Grafana
-              │              │
-         SonarQube      DefectDojo
-         (SAST)        (findings)
-              │
-        garak (red-team against the coding model)
+prompt ──> input guard (llm-guard, in-process) ──> Ollama model (qwen3-coder:30b)
+              │ injection/secret? quarantine, no generation
+              ▼
+        generated output ──> output guard (llm-guard, in-process)
+                                 │ mask secrets/PII, block listed URLs
+                                 ▼
+                    IaC prompt? ──yes──> Checkov gate
+                       │                   │ fail → 1 repair prompt → re-check
+                       no                  ▼
+                       │             pass/fail recorded (no auto-promote)
+                       ▼                   ▼
+              reports/findings-<run>.json + trace.json (always written locally)
+                                 │
+                    optional: export to Langfuse (only if creds set in .env)
+
+garak (separate, out-of-band): red-teams the raw Ollama model directly —
+no guard in the loop — this is the untreated-risk baseline behind F3.
 ```
+
+*Scope note:* earlier planning notes for this lab also named SonarQube, DefectDojo, and
+Grafana. None of the three have a working integration here, so they're left out of the
+diagram and stack below — nothing on this page is claimed that didn't actually run.
 
 ## Stack
 
 | Layer | Tool | Why |
 |---|---|---|
-| Input guard | LLM Guard API | prompt injection, PII, secret scanning on the way in |
+| Input guard | LLM Guard (Python lib, in-process) | prompt injection, PII, secret scanning on the way in |
 | Agent | Ollama-hosted local model | fully sandboxed; pinned, reproducible |
-| Loop | Agentic-Dev-Loop style orchestrator | generate → judge → promote |
-| Output guard | LLM Guard | mask/block secrets & malicious code before commit |
-| IaC gate | Checkov | fails agent-written Terraform/K8s/YAML in CI |
-| SAST | SonarQube | code quality gate on generated diffs |
-| Vuln mgmt | DefectDojo | aggregated finding ledger |
-| Red team | garak | scans the coding model itself for injection vulnerabilities |
-| Observability | Langfuse → Grafana | trace input-guard decisions + token spend |
+| Driver | `scripts/run_demo.py` | baseline vs. guarded generation, per-prompt trace, one findings JSON per run |
+| Output guard | LLM Guard (Python lib, in-process) | mask/block secrets & malicious code before commit |
+| IaC gate | Checkov | fails agent-written Terraform on real policy violations; one repair round, then records pass/fail |
+| Red team | garak | scans the raw coding model (no guard) for jailbreak/injection bypass |
+| Observability | Langfuse | optional trace export of every guard decision + token spend, if credentials are set |
 
 ## Quickstart
 
+LLM Guard runs in-process (it's a Python dependency, not a hosted service) and garak is
+invoked directly as a CLI — nothing needs to be "booted." The only external dependency
+is an Ollama endpoint with the model pinned in `.env` (`OLLAMA_MODEL`) already pulled.
+
 ```bash
-make up        # boot LLM Guard + garak worker
-make demo      # run the secured loop against the local agent, emit findings
+make setup     # venv + pinned deps (garak, llm-guard, checkov)
+make demo      # run the baseline-vs-guarded loop, emit reports/findings-<run>.json
 make report    # render reports/findings.md
-make clean     # tear down
+make trace-export   # optional: push the run trace to Langfuse, if creds are set
+
+# separately — the red-team pass behind finding F3:
+.venv/bin/garak --model_type ollama --model_name qwen3-coder:30b \
+  --probes dan.DanInTheWild --parallel_attempts 4 --seed 42
 ```
+
+`docker-compose.yml`/`make up` are left in the repo as an *optional* path for anyone who
+wants LLM Guard running as a real hosted service instead of the in-process library — they
+are not what produced the findings below.
 
 Each run pins its own identity (see Reproducible metrics) so every claim in the report
 can be reproduced by anyone with the same manifest.
 
 ## Reproducible metrics (the honesty contract)
 
-- **Model**: pinned tag + hash of the Ollama image (`MODEL` in `.env`).
+- **Model**: pinned tag (`OLLAMA_MODEL` in `.env`) recorded in every run's manifest.
 - **Prompts**: every adversarial prompt is versioned under `prompts/` (not paste-in chat).
-- **Guard configs**: LLM Guard scanners pinned to a commit.
-- **Versions**: garak, Checkov, SonarQube, Langfuse versions recorded in the report manifest.
+- **Guard configs**: the exact `llm-guard` version is recorded per run (see Versions below);
+  the scanner set itself (`InSecrets`, `PromptInjection`, `Sensitive`) is fixed in
+  `scripts/run_demo.py`, versioned with the rest of the repo.
+- **Versions**: `llm-guard` and Checkov versions are recorded automatically in each run's
+  manifest (`reports/findings-<run>.json`); the garak version is recorded manually in
+  `reports/garak-summary.md`, since that's a separate CLI run, not part of `run_demo.py`.
 - **Seeds**: random seeds fixed for prompt generation.
 
 ## Findings

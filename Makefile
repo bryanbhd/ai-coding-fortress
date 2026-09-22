@@ -1,7 +1,13 @@
-.PHONY: up demo report clean publish-check trace-export charts
+.PHONY: setup up demo report clean publish-check trace-export charts
+
+setup:
+	@echo "==> Creating venv + installing pinned deps (garak, llm-guard, checkov)"
+	python3 -m venv .venv
+	.venv/bin/pip install -r requirements.txt
 
 up:
-	@echo "==> Booting LLM Guard + garak worker"
+	@echo "==> OPTIONAL: booting LLM Guard as a hosted service (docker-compose.yml)."
+	@echo "    Not required for 'make demo' — that runs llm-guard in-process. See README."
 	docker compose up -d --build
 
 demo:
@@ -23,7 +29,7 @@ charts:
 	python3 scripts/render_charts.py
 
 clean:
-	@echo "==> Tearing down lab"
+	@echo "==> Tearing down the optional docker-compose service (if you ran 'make up')"
 	docker compose down -v
 
 publish-check:
