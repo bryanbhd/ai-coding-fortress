@@ -7,6 +7,9 @@ myself, in my own sandbox.** No third-party systems are touched.
 
 The output is a verifiable findings report you can attach to anything you publish.
 
+**Read the full write-up:** [linkedin/article.md](linkedin/article.md) — charts, the guard-delta
+numbers, the garak red-team results, and the gap-fix-re-run story in one place.
+
 ## Why this exists
 
 AI coding assistants turn an LLM into a person with commit access. That gives a coding
