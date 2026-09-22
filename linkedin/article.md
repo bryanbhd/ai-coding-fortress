@@ -59,9 +59,9 @@ cherry-picking. Raw output: `reports/artifacts/20260920-022003/raw-outputs/P1-05
 
 ![Red-team — garak DanInTheWild, base model](../reports/charts/red-team.png)
 
-256 jailbreak prompts, base model, `mitigation.MitigationBypass` detector: **360/1280 judged slices
-bypassed** → 28.1%. That is the **untreated** surface — the number you argue about, not the number
-you ship. The guard delta above is the number you ship.
+garak's `dan.DanInTheWild` probe, base model, `mitigation.MitigationBypass` detector: **360/1280
+judged output slices bypassed** → 28.1%. That is the **untreated** surface — the number you argue
+about, not the number you ship. The guard delta above is the number you ship.
 
 ## The residual case, and the fix, in one commit trail
 
@@ -107,7 +107,7 @@ pushes it into Langfuse when creds are configured. "It's fine" is not a security
 >
 > → 3 of 8 baseline outputs tripped a hard-risk indicator (a leaked key shape, an attacker-controlled URL, and one detector false-positive on a refusal I kept in the count instead of quietly dropping) → 1 of 8 behind the guard
 > → The input guard blocked 2 prompt-injection attempts outright and masked a seed key in 1
-> → Pre-launch red-team: garak threw 256 jailbreak prompts at the raw model under a mitigation-bypass detector — 28.1% of slices got through. That's the untreated surface; the guard delta is what you ship.
+> → Pre-launch red-team: garak's DanInTheWild probe hit the raw model under a mitigation-bypass detector — 28.1% of 1280 judged output slices got through. That's the untreated surface; the guard delta is what you ship.
 > → The URL case slipped through both arms in run one. I added a URL blocklist, re-ran the prompt, and it blocked. Gap, fix, re-run — all in the report.
 > → The agent wrote Terraform; Checkov kept refusing it (parse error), including after one repair round. Nothing gets approved without passing the gate.
 >

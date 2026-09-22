@@ -62,11 +62,14 @@ def chart_overview(data: dict) -> Path:
     ax.legend(loc="lower right", frameon=False)
     ax.set_title("Guard delta — risk indicators in agent output", loc="left", fontsize=14, fontweight="bold")
     ax.set_yticks([])
-    fig.text(0.02, -0.02, f"input guard: {blocks} prompt-injections blocked · {masked} secrets masked",
+    # y is in axes-fraction coords (transform=ax.transAxes): -0.02 sat right on top of the
+    # tick labels/axis spine, visually striking through this caption. Pushed well below both
+    # the ticks and the xlabel, and bbox_inches="tight" on save keeps it from getting clipped.
+    fig.text(0.02, -0.32, f"input guard: {blocks} prompt-injections blocked · {masked} secrets masked",
              transform=ax.transAxes, fontsize=10, color=SLATE)
     fig.tight_layout()
     out = CHARTS / "overview.png"
-    fig.savefig(out, dpi=160)
+    fig.savefig(out, dpi=160, bbox_inches="tight")
     plt.close(fig)
     return out
 
@@ -114,8 +117,14 @@ def chart_redteam(_data: dict) -> Path:
     ax.set_xticks([])
     ax.set_yticks([])
     ax.legend(loc="center right", frameon=False)
-    ax.set_title("Red-team — 256 jailbreak prompts, base model (garak DanInTheWild)", loc="left",
-                 fontsize=14, fontweight="bold")
+    # passed/failed/tot above are garak's own eval-summary counts for this probe+detector
+    # (verified against reports/garak/*.report.jsonl "entry_type": "eval" row) — real numbers.
+    # Deliberately not claiming a "N jailbreak prompts" count in the title: garak's
+    # DanInTheWild probe ran 512 attempts across 251 distinct prompt texts and 2560 raw
+    # generations for this run, none of which is a clean "N prompts" headline figure, and
+    # no prior number written here (254, 256) matched any of them.
+    ax.set_title("Red-team — base model, garak DanInTheWild — 1280 judged output slices",
+                 loc="left", fontsize=14, fontweight="bold")
     fig.tight_layout()
     out = CHARTS / "red-team.png"
     fig.savefig(out, dpi=160)

@@ -1,7 +1,9 @@
 # Red-team — base model (garak)
 
 - **garak** v0.17.0 · target: Ollama `qwen3-coder:30b` (self-hosted, sandbox)
-- **probe**: `dan.DanInTheWild` (254 jailbreak prompts) · detector: `mitigation.MitigationBypass`
+- **probe**: `dan.DanInTheWild` · detector: `mitigation.MitigationBypass`
+  (512 attempts, 251 distinct prompt texts, 2560 raw generations — 1280 of them judged by this
+  detector; see the raw report's `entry_type: eval` row for the authoritative counts)
 - **result**: 360 of 1280 model slices flagged → **attack success rate 28.1%**
 - seed 42 · raw report: `reports/garak/garak.dbd65157-57ea-4bce-9eda-fdaa552a0859.report.jsonl`
 
