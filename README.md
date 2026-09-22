@@ -1,5 +1,8 @@
 # AI Coding Fortress
 
+**[View the repo on GitHub →](https://github.com/bryanbhd/ai-coding-fortress)** — clone it, read the
+code, run `make demo` yourself.
+
 A **reproducible lab** that secures an AI coding loop — an autonomous agent that writes
 and ships code, wrapped in input/output guards, an IaC security gate, optional
 observability, and a red-team harness. Every attack in this repo is run **against models
