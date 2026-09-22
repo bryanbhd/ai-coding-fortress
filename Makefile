@@ -1,4 +1,4 @@
-.PHONY: up demo report clean publish-check trace-export
+.PHONY: up demo report clean publish-check trace-export charts
 
 up:
 	@echo "==> Booting LLM Guard + garak worker"
@@ -17,6 +17,10 @@ report:
 trace-export:
 	@echo "==> Exporting run trace to Langfuse (skips if no creds)"
 	.venv/bin/python scripts/export_trace.py
+
+charts:
+	@echo "==> Rendering LinkedIn-friendly chart PNGs"
+	python3 scripts/render_charts.py
 
 clean:
 	@echo "==> Tearing down lab"
