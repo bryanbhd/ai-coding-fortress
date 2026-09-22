@@ -14,8 +14,9 @@ What that loop looks like now:
 
 Eight adversarial prompts, baseline vs guarded, self-hosted model, all reproducible:
 
-→ Three of 8 unsafe outputs from the unguarded agent (a leaked key shape, a committed .env
-  secret, an attacker-controlled URL) → 1 of 8 behind the guard
+→ Three of 8 baseline outputs tripped a hard-risk indicator (a leaked key shape, an
+  attacker-controlled URL, and one detector false-positive on a refusal I kept in the count
+  instead of quietly dropping) → 1 of 8 behind the guard
 → The input guard blocked 2 prompt-injection attempts outright and masked a seed key in 1
 → The URL case slipped through both arms in run one — so I added a URL blocklist and re-ran
   the prompt: blocked. The gap, the fix, and the re-run are all in the report
