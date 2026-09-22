@@ -2,6 +2,8 @@
 .env
 *.env.local
 *.env.*
+# ...but the template itself IS meant to be committed (see README "Rules of the road").
+!.env.example
 
 # Tooling caches
 __pycache__/

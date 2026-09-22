@@ -43,12 +43,23 @@ def main() -> None:
     host = cfg.get("LANGFUSE_HOST") or cfg.get("LANGFUSE_BASEURL")
     pk = cfg.get("LANGFUSE_PUBLIC_KEY")
     sk = cfg.get("LANGFUSE_SECRET_KEY")
-    if not (host and pk and sk):
+    # Treat unfilled .env.example-style placeholders ("pk-lf-...") as not configured,
+    # not as real keys to attempt auth with.
+    placeholder = lambda v: not v or v.strip().endswith("...")
+    if not host or placeholder(pk) or placeholder(sk):
         print("no Langfuse credentials (LANGFUSE_HOST/PUBLIC_KEY/SECRET_KEY); "
               "keeping local trace JSON — nothing sent")
         return
 
-    from langfuse import Langfuse
+    try:
+        from langfuse import Langfuse
+    except ModuleNotFoundError:
+        raise SystemExit(
+            "LANGFUSE_HOST/PUBLIC_KEY/SECRET_KEY are set but the `langfuse` package "
+            "isn't installed — run `.venv/bin/pip install langfuse` (it's commented "
+            "out in requirements.txt since it's optional). Local trace JSON is still "
+            f"at {trace_path.relative_to(ROOT)}."
+        )
 
     langfuse = Langfuse(public_key=pk, secret_key=sk, host=host)
     trace = langfuse.trace(name=f"ai-coding-fortress {run_id}")
