@@ -7,8 +7,10 @@ and services I host myself, in my own sandbox.** No third-party systems are touc
 
 The output is a verifiable findings report you can attach to anything you publish.
 
-**Read the full write-up:** [linkedin/article.md](linkedin/article.md) — charts, the guard-delta
-numbers, the garak red-team results, and the gap-fix-re-run story in one place.
+**Read the full write-up:** [linkedin/article.md](https://security.bryandebnam.com/linkedin/article.html)
+— charts, the guard-delta numbers, the garak red-team results, and the gap-fix-re-run story in one
+place. (Browsing the repo on GitHub instead? The same file renders natively at
+[`linkedin/article.md`](linkedin/article.md).)
 
 ## Why this exists
 

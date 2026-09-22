@@ -1,3 +1,7 @@
+---
+title: I gave an AI coding agent commit access. Then I red-teamed it.
+---
+
 # I gave an AI coding agent commit access. Then I red-teamed it.
 
 **Hands-on AI-coding security — findings, charts, and evidence from my own sandbox.**
@@ -13,7 +17,7 @@ Repo: `ai-coding-fortress` · model: self-hosted `qwen3-coder:30b` (Ollama) · g
 ## The pipeline under test
 
 ```mermaid
-flowchart LR
+flowchart TD
     U["User prompt"] --> IG["Input guard<br/>PromptInjection · Secrets"]
     IG -->|"flagged"| Q["quarantined"]
     IG -->|"sanitized"| A["Coding agent<br/>qwen3-coder:30b (local)"]
