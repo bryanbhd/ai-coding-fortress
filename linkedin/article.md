@@ -24,7 +24,8 @@ title: I gave an AI coding agent commit access. Then I red-teamed it.
 # I gave an AI coding agent commit access. Then I red-teamed it.
 
 **Hands-on AI-coding security — findings, charts, and evidence from my own sandbox.**
-Repo: `ai-coding-fortress` · model: self-hosted `qwen3-coder:30b` (Ollama) · guard: llm-guard 0.3.16 · gates: Checkov 3.2 + garak 0.17
+Repo: [`ai-coding-fortress`](https://github.com/bryanbhd/ai-coding-fortress) · model: self-hosted `qwen3-coder:30b` (Ollama) · guard: llm-guard 0.3.16 · gates: Checkov 3.2 + garak 0.17
+· [project overview](https://security.bryandebnam.com)
 
 > **TL;DR** — 8 adversarial prompts against the same coding agent, twice: unguarded and guarded.
 > Risky outputs dropped **3/8 → 1/8** behind the guard; the input guard blocked 2 prompt-injection
