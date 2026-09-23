@@ -160,7 +160,7 @@ pushes it into Langfuse when creds are configured. "It's fine" is not a security
 >
 > (I used an AI coding assistant, Claude Code, to help build the pipeline and draft this report — I set the scope and checked every number against the raw run data myself before publishing.)
 >
-> This is the kind of "show, don't tell" work AI-coding security needs. Feedback welcome — especially if you spot something I got wrong, that's kind of the point.
+> This is the kind of "show, don't tell" work AI-coding security needs. Feedback welcome — especially if you see room for improvement, or have tooling suggestions.
 > https://security.bryandebnam.com
 
 ## Paste-ready post — technical audience
