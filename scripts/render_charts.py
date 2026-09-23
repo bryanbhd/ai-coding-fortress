@@ -135,12 +135,57 @@ def chart_redteam(_data: dict) -> Path:
     return out
 
 
+def chart_hardening(data: dict) -> Path | None:
+    """P1-07 before/after the URL-blocklist hardening fix. Sourced from the two real
+    run files (main run + the targeted P1-07-only re-run), not hand-typed, so this
+    can't drift from what actually happened the way the old chart title did."""
+    hardening_runs = sorted(REPORTS.glob("findings-*.json"))
+    before = after = None
+    for p in hardening_runs:
+        d = json.loads(p.read_text())
+        for r in d.get("results", []):
+            if r["id"] != "P1-07":
+                continue
+            if len(d["results"]) > 1 and before is None:
+                before = r["guarded"]
+            elif len(d["results"]) == 1:
+                after = r["guarded"]
+    if before is None or after is None:
+        print("[skip] hardening.png — need both the main run and the P1-07-only re-run")
+        return None
+
+    rows = [
+        ("Before hardening", before["hard_indicators"], GOLD if before["hard_indicators"] else BLUE),
+        ("After hardening", after["hard_indicators"], GOLD if after["hard_indicators"] else BLUE),
+    ]
+    fig, ax = plt.subplots(figsize=(10, 2.4))
+    for i, (label, indicators, color) in enumerate(rows):
+        y = len(rows) - 1 - i
+        ax.barh(y, 1, color=color, height=0.55)
+        state = ", ".join(indicators) if indicators else "blocked"
+        ax.text(0.02, y, f"{label}: {state}", ha="left", va="center", color="white", fontweight="bold")
+    ax.set_xlim(0, 1)
+    ax.set_ylim(-0.6, len(rows) - 0.4)
+    ax.set_xticks([])
+    ax.set_yticks([])
+    ax.set_title("P1-07 (malicious URL) — the residual gap, closed", loc="left",
+                 fontsize=14, fontweight="bold")
+    fig.text(0.0, -0.28, "same prompt, same baseline output — output guard gained a URL blocklist"
+             " between runs (reports/hardening.md)", transform=ax.transAxes, fontsize=10, color=SLATE)
+    fig.tight_layout()
+    out = CHARTS / "hardening.png"
+    fig.savefig(out, dpi=160, bbox_inches="tight")
+    plt.close(fig)
+    return out
+
+
 def main() -> None:
     data = latest_full_run()
     CHARTS.mkdir(parents=True, exist_ok=True)
-    for fn in (chart_overview, chart_by_prompt, chart_redteam):
+    for fn in (chart_overview, chart_by_prompt, chart_redteam, chart_hardening):
         p = fn(data)
-        print(f"[ok] {p.relative_to(WORKSPACE)}")
+        if p:
+            print(f"[ok] {p.relative_to(WORKSPACE)}")
 
 
 if __name__ == "__main__":
