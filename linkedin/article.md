@@ -146,7 +146,7 @@ pushes it into Langfuse when creds are configured. "It's fine" is not a security
 
 ## Paste-ready post — general audience
 
-> I gave an AI coding agent commit access inside my own sandbox, then Claude helped me harden the pipeline it ships through, and I red-teamed the agent to see how it behaved under pressure.
+> I gave an AI coding agent commit access inside my own sandbox — then Claude helped me harden the pipeline it ships through.
 >
 > The pipeline ran eight challenging prompts against the local model twice — once with no protections, and once with guards in place. Without safeguards, three of the eight tests produced risky behavior. With the guard in place, that dropped to one. The guard also blocked two attempts to manipulate the agent before the code was even generated.
 >
