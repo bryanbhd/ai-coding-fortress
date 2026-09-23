@@ -9,20 +9,20 @@
 |---|---|
 | Date | YYYY-MM-DD |
 | Model + tag | `ollama/<model>:<tag>` (digest) |
-| LLM Guard commit | `<sha>` |
+| LLM Guard version | `<ver>` |
 | garak version | `<ver>` |
 | Checkov version | `<ver>` |
-| OpenCode loop commit | `<sha>` |
-| Prompts | `prompts/<run-id>/` (versioned) |
+| Prompts | `prompts/<run-id>.json` (versioned) |
 | Seeds | `<list>` |
 
 ## Methodology
 
-1. Boot services (`make up`).
-2. Run the protected loop against adversarial prompt set P1 (`make demo`).
-3. Run the *same* prompt set against the unprotected baseline for comparison.
-4. Run garak probes against the coding model.
-5. Collect Langfuse traces + Checkov output into this report.
+1. `make setup` once (venv + pinned deps).
+2. Run baseline + guarded loop against the adversarial prompt set (`make demo` — this
+   runs both arms in one pass, not two separate steps).
+3. Render the report (`make report`), which regenerates it from the run JSON.
+4. Run garak against the raw model separately, out-of-band (see `reports/garak-summary.md`).
+5. Export the trace to Langfuse if configured (`make trace-export`); otherwise it stays local.
 
 ## Findings
 
