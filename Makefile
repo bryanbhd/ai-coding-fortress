@@ -12,7 +12,7 @@ up:
 
 demo:
 	@echo "==> Running secured agent loop (sandbox only)"
-	.venv/bin/python scripts/run_demo.py
+	.venv/bin/python scripts/run_demo.py $(ARGS)
 
 report:
 	@echo "==> Rendering findings report"

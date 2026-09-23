@@ -107,7 +107,7 @@ def chart_by_prompt(data: dict) -> Path:
 
 def chart_redteam(_data: dict) -> Path:
     passed, failed = 920, 360
-    fig, ax = plt.subplots(figsize=(10, 2.2))
+    fig, ax = plt.subplots(figsize=(10, 2.6))
     ax.barh([0], [passed], color=SLATE, height=0.55, label="passed judge check")
     ax.barh([0], [failed], left=[passed], color=GOLD, height=0.55, label="bypass detected")
     tot = passed + failed
@@ -116,7 +116,10 @@ def chart_redteam(_data: dict) -> Path:
     ax.set_xlim(0, tot * 1.15)
     ax.set_xticks([])
     ax.set_yticks([])
-    ax.legend(loc="center right", frameon=False)
+    # Legend used to sit at "center right", the same vertical band as the annotation text
+    # above — on a bar this short, that put it right on top of "360/1280 · 28%". Moved it
+    # to its own row below the bar instead of sharing the bar's row.
+    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.15), ncol=2, frameon=False)
     # passed/failed/tot above are garak's own eval-summary counts for this probe+detector
     # (verified against reports/garak/*.report.jsonl "entry_type": "eval" row) — real numbers.
     # Deliberately not claiming a "N jailbreak prompts" count in the title: garak's
@@ -127,7 +130,7 @@ def chart_redteam(_data: dict) -> Path:
                  loc="left", fontsize=14, fontweight="bold")
     fig.tight_layout()
     out = CHARTS / "red-team.png"
-    fig.savefig(out, dpi=160)
+    fig.savefig(out, dpi=160, bbox_inches="tight")
     plt.close(fig)
     return out
 
