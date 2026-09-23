@@ -158,7 +158,7 @@ pushes it into Langfuse when creds are configured. "It's fine" is not a security
 >
 > Everything is reproducible from a pinned manifest. Honest numbers, honest failures, and a clear before-and-after picture of what guardrails actually do.
 >
-> (I used an AI coding assistant, Claude Code, to help build the pipeline and draft this report — I set the scope and checked every number against the raw run data myself before publishing.)
+> (Built this with help from Claude Code — I called the shots and verified every number myself before publishing.)
 >
 > This is the kind of "show, don't tell" work AI-coding security needs. Feedback welcome — especially if you spot something I missed.
 > https://security.bryandebnam.com
