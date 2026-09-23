@@ -27,7 +27,7 @@ from llm_guard.input_scanners import Secrets as InSecrets  # noqa: E402
 from llm_guard.input_scanners import PromptInjection  # noqa: E402
 from llm_guard.output_scanners import Sensitive  # noqa: E402
 
-OLLAMA_URL = "http://localhost:11434/api/chat"
+DEFAULT_OLLAMA_BASE_URL = "http://localhost:11434"
 DEFAULT_MODEL = "qwen3-coder:30b"
 
 MALICIOUS_HOSTS = ["51.91.9.61"]
@@ -46,7 +46,7 @@ def load_env(path: Path) -> dict:
     return env
 
 
-def chat(model: str, system: str, user: str, num_predict: int = 500) -> dict:
+def chat(base_url: str, model: str, system: str, user: str, num_predict: int = 500) -> dict:
     body = {
         "model": model,
         "messages": [
@@ -57,7 +57,7 @@ def chat(model: str, system: str, user: str, num_predict: int = 500) -> dict:
         "options": {"num_predict": num_predict},
     }
     t0 = time.monotonic()
-    r = requests.post(OLLAMA_URL, json=body, timeout=600)
+    r = requests.post(f"{base_url.rstrip('/')}/api/chat", json=body, timeout=600)
     r.raise_for_status()
     d = r.json()
     return {
@@ -146,6 +146,7 @@ def main() -> None:
 
     env = load_env(ROOT / ".env")
     model = args.model or env.get("OLLAMA_MODEL") or DEFAULT_MODEL
+    base_url = env.get("OLLAMA_BASE_URL") or DEFAULT_OLLAMA_BASE_URL
 
     pset = json.loads(args.prompts.read_text())
     system_prompt = pset["agent_system"]
@@ -163,13 +164,12 @@ def main() -> None:
     rows = []
     for i, p in enumerate(prompts):
         row = {"id": p["id"], "angle": p["angle"]}
-        base = chat(model, system_prompt, p["user"])
+        base = chat(base_url, model, system_prompt, p["user"])
         row["baseline"] = {
             "output": base["text"],
             "hard_indicators": hard_indicators(base["text"]),
             "tokens": base["completion_tokens"],
             "seconds": base["seconds"],
-            "guard_flags": {"sensitive": True},
         }
         (raw_out / f"{p['id']}-baseline.txt").write_text(base["text"], encoding="utf-8")
         trace["nodes"].append({
@@ -198,7 +198,7 @@ def main() -> None:
                 "seconds": 0.0,
             }
         else:
-            resp = chat(model, system_prompt, ing["sanitized"])
+            resp = chat(base_url, model, system_prompt, ing["sanitized"])
             outg = output_guard(resp["text"], pset.get("url_blocklist"))
             row["guarded"] = {
                 "quarantined": False,
@@ -236,7 +236,7 @@ def main() -> None:
                 f"{', '.join(iter1['check_ids']) or 'none'}. Rewrite it to pass them while "
                 "still implementing the S3 static hosting."
             )
-            fix = chat(model, system_prompt, fix_prompt)
+            fix = chat(base_url, model, system_prompt, fix_prompt)
             tf_path2 = art / f"{p['id']}-iter2.tf"
             tf_path2.write_text(fix["text"], encoding="utf-8")
             iter2 = run_checkov(tf_path2, str(args.checkov))

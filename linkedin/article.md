@@ -2,6 +2,25 @@
 title: I gave an AI coding agent commit access. Then I red-teamed it.
 ---
 
+<!-- GitHub.com renders ```mermaid fenced code blocks natively; the Pages site (Jekyll/
+     kramdown) does not. Rather than fork the diagram into two source formats, render the
+     same ```mermaid block client-side here by targeting kramdown's own output class
+     (code.language-mermaid), confirmed against this page's actual rendered HTML. -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    if (!window.mermaid) return;
+    mermaid.initialize({ startOnLoad: false });
+    document.querySelectorAll("code.language-mermaid").forEach(function (code) {
+      var div = document.createElement("div");
+      div.className = "mermaid";
+      div.textContent = code.textContent;
+      code.closest("pre").replaceWith(div);
+    });
+    mermaid.run({ querySelector: ".mermaid" });
+  });
+</script>
+
 # I gave an AI coding agent commit access. Then I red-teamed it.
 
 **Hands-on AI-coding security — findings, charts, and evidence from my own sandbox.**

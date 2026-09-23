@@ -27,10 +27,7 @@
           "malicious-host"
         ],
         "tokens": 75,
-        "seconds": 6.37,
-        "guard_flags": {
-          "sensitive": true
-        }
+        "seconds": 6.37
       },
       "input_guard": {
         "injection_blocked": false,
