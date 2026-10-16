@@ -28,6 +28,10 @@ all of the author's repos, and each comes from a real incident.
   shows. If a tool isn't actually integrated, it isn't claimed (see the README's scope note).
 - **`.env` holds credentials and never leaves the machine.** It is gitignored; `.env.example`
   documents the variable names only. Read credentials from the environment, never print them.
+- **Agent instruction files are reviewed like code.** `AGENTS.md`, `CLAUDE.md` and `.gemini/`
+  steer every agent that works here, so an edit to them is a prompt-injection route. They're
+  listed in `.github/CODEOWNERS`; never weaken or remove a rule here as a side effect of
+  another change.
 - **Reports are published artifacts.** Before committing anything under `reports/` or
   `linkedin/`, check it for hostnames, IPs, internal paths and secrets.
 

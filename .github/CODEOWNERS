@@ -1,0 +1,6 @@
+# Agent instruction files are code to an AI agent: a change to them changes what every agent
+# working on this repo will do. Changes need the owner's review.
+/AGENTS.md    @bryanbhd
+/CLAUDE.md    @bryanbhd
+/.gemini/     @bryanbhd
+/.github/     @bryanbhd
