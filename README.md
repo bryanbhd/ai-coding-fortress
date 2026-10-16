@@ -65,6 +65,7 @@ diagram and stack below — nothing on this page is claimed that didn't actually
 | IaC gate | Checkov | fails agent-written Terraform on real policy violations; one repair round, then records pass/fail |
 | Red team | garak | scans the raw coding model (no guard) for jailbreak/injection bypass |
 | Observability | Langfuse | optional trace export of every guard decision + token spend, if credentials are set |
+| Policy layer | [`AGENTS.md`](AGENTS.md) | what a coding agent working on this repo may *do*: incident-derived rules (explicit approval, backup first, secrets never on a command line), read natively by most coding agents |
 
 ## Quickstart
 
