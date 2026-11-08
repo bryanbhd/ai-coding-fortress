@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """AI Coding Fortress — evidence driver.
 
-Runs a baseline (unguarded) local coding agent against a versioned adversarial prompt
-set, then the same prompts through the guarded pipeline (LLM Guard in/out + Ollama model).
-Emits a findings JSON with before/after verdicts, an IaC gate run for any generated
-Terraform (Checkov), and a sandbox trace export (F4). All models are self-hosted.
+Runs versioned adversarial prompts through baseline and guarded local-model response
+generation paths (LLM Guard in/out + Ollama model). It does not execute an autonomous
+agent or make git commits. Emits findings with before/after verdicts, an IaC gate run for
+generated Terraform (Checkov), and a sandbox trace export (F4). All models are self-hosted.
 """
 from __future__ import annotations
 

@@ -10,8 +10,9 @@ facts are in this top part. The shared rules at the bottom are one baseline kept
 all of the author's repos, and each comes from a real incident.
 
 ## Project
-- **What it is:** a reproducible lab that secures an AI coding loop: llm-guard input/output
-  guards, a Checkov IaC gate with one repair round, garak red-teaming, a findings report.
+- **What it is:** a reproducibility-focused lab that evaluates guards in an AI coding loop:
+  llm-guard input/output guards, a Checkov IaC gate with one repair round, garak red-teaming,
+  and a findings report.
 - **Setup:** `make setup` (venv + pinned deps from `requirements.txt`).
 - **Run:** `make demo` (secured agent loop) → `make report` (findings + hardening re-run) →
   `make charts`. Optional: `make up` (hosted llm-guard), `make trace-export` (Langfuse, only if
