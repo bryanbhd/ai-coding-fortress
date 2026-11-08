@@ -32,6 +32,26 @@ The container runs as an unprivileged user, needs no network access at runtime,
 and mounts the checkout read-only. Add `--output /path/report.json` to save a
 JSON report. Scan errors always return a nonzero status.
 
+## Run in an ephemeral Incus system container
+
+This option scans tracked text files in the current checkout using an
+ephemeral Debian system container. The checkout is mounted read-only; Python
+and Git are installed in the container at runtime, and the container is removed
+when the command ends.
+The host needs Incus, Git, and access to the configured `images:` remote and
+Debian package repositories.
+
+```bash
+tools/text-integrity/run-incus.sh
+tools/text-integrity/run-incus.sh --output /tmp/text-integrity-report.json
+```
+
+The script creates a uniquely named temporary instance and removes only that
+instance. A HIGH-risk finding still returns a failing status; with `--output`,
+the JSON report is copied to the requested host path even when the gate fails.
+For routine CI use, prefer the existing GitHub Actions workflow, which runs
+directly on the runner.
+
 ## CI gate
 
 The GitHub Actions workflow runs the scanner directly with Python; it does not
