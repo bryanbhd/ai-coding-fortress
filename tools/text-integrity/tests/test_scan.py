@@ -77,6 +77,24 @@ class ScanRepositoryTests(unittest.TestCase):
         self.assertEqual(report["files_scanned"], 0)
         self.assertEqual(report["high_risk_signal_count"], 0)
 
+    def test_tracked_path_manifest_scans_without_git(self) -> None:
+        path = self.root / "manifest-only.md"
+        path.write_text("hidden" + chr(0x2063) + "marker", encoding="utf-8")
+        manifest = self.root / "tracked-paths"
+        manifest.write_bytes(b"manifest-only.md\0")
+
+        report = scan.scan_repository(self.root, manifest)
+
+        self.assertEqual(report["files_scanned"], 1)
+        self.assertEqual(report["files_with_signals"][0]["path"], "manifest-only.md")
+
+    def test_tracked_path_manifest_rejects_parent_paths(self) -> None:
+        manifest = self.root / "tracked-paths"
+        manifest.write_bytes(b"../outside.md\0")
+
+        with self.assertRaises(RuntimeError):
+            scan.scan_repository(self.root, manifest)
+
     def test_medium_signal_does_not_count_as_high(self) -> None:
         self._track("docs/example.md", "visible" + chr(0x200B) + "text\n")
 

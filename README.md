@@ -95,8 +95,8 @@ make text-integrity-test  # run scanner tests
 ```
 
 For an isolated local run, `tools/text-integrity/run-incus.sh` scans tracked
-text files in the current checkout in an ephemeral Incus system container
-with a read-only checkout mount. See the
+text files in the current checkout in an ephemeral Incus Python OCI container.
+See the
 [scanner instructions](tools/text-integrity/README.md) for requirements and
 report output options.
 

@@ -88,7 +88,20 @@ TEXT_FILENAMES = {"dockerfile", "jenkinsfile", "makefile"}
 DETECTORS = {"unicode-covert-channel", "c2pa-text-manifest"}
 
 
-def _tracked_paths(root: pathlib.Path) -> list[pathlib.Path]:
+def _tracked_paths(
+    root: pathlib.Path, tracked_list: pathlib.Path | None = None
+) -> list[pathlib.Path]:
+    if tracked_list is not None:
+        paths = []
+        for raw in tracked_list.read_bytes().split(b"\0"):
+            if not raw:
+                continue
+            relative = pathlib.PurePosixPath(os.fsdecode(raw))
+            if relative.is_absolute() or ".." in relative.parts:
+                raise RuntimeError("tracked-path manifest contains an invalid path")
+            paths.append(root.joinpath(*relative.parts))
+        return paths
+
     result = subprocess.run(
         ["git", "-c", f"safe.directory={root}", "-C", str(root), "ls-files", "-z"],
         check=False,
@@ -142,14 +155,16 @@ def _file_result(path: pathlib.Path, root: pathlib.Path) -> dict[str, Any]:
         return {"path": relative, "error": type(error).__name__}
 
 
-def scan_repository(root: pathlib.Path) -> dict[str, Any]:
+def scan_repository(
+    root: pathlib.Path, tracked_list: pathlib.Path | None = None
+) -> dict[str, Any]:
     root = root.resolve(strict=True)
     findings: list[dict[str, Any]] = []
     errors: list[dict[str, str]] = []
     scanned = 0
     skipped = 0
 
-    for path in _tracked_paths(root):
+    for path in _tracked_paths(root, tracked_list):
         if not _is_text_candidate(path):
             skipped += 1
             continue
@@ -185,12 +200,17 @@ def scan_repository(root: pathlib.Path) -> dict[str, Any]:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=pathlib.Path, default=pathlib.Path.cwd())
+    parser.add_argument(
+        "--tracked-list",
+        type=pathlib.Path,
+        help="NUL-separated tracked paths, for scans without a Git checkout",
+    )
     parser.add_argument("--output", type=pathlib.Path)
     parser.add_argument("--fail-high", action="store_true")
     args = parser.parse_args()
 
     try:
-        report = scan_repository(args.root)
+        report = scan_repository(args.root, args.tracked_list)
     except (OSError, RuntimeError, ValueError) as error:
         print(f"watermark scan failed: {type(error).__name__}", file=sys.stderr)
         return 2

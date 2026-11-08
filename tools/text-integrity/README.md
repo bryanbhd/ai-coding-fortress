@@ -32,14 +32,21 @@ The container runs as an unprivileged user, needs no network access at runtime,
 and mounts the checkout read-only. Add `--output /path/report.json` to save a
 JSON report. Scan errors always return a nonzero status.
 
-## Run in an ephemeral Incus system container
+## Run in an ephemeral Incus OCI container
 
 This option scans tracked text files in the current checkout using an
-ephemeral Debian system container. The checkout is mounted read-only; Python
-and Git are installed in the container at runtime, and the container is removed
-when the command ends.
-The host needs Incus, Git, and access to the configured `images:` remote and
-Debian package repositories.
+ephemeral Python OCI app container. The runner copies tracked files into the
+container, so it also works when the Incus daemon is remote and cannot mount
+the client's local checkout. No package installation or container network
+access is needed at runtime. The host needs Incus, Git, Python 3, and a Docker
+Hub OCI remote. The runner defaults to remote `docker`; set
+`TEXT_INTEGRITY_OCI_REMOTE` to use another configured OCI remote.
+
+Add the OCI remote once if it is not already configured:
+
+```bash
+incus remote add docker https://docker.io --protocol=oci
+```
 
 ```bash
 tools/text-integrity/run-incus.sh
