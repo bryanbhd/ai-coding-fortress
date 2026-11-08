@@ -1,4 +1,4 @@
-.PHONY: setup up demo report clean publish-check trace-export charts
+.PHONY: setup up demo report clean publish-check trace-export charts text-integrity text-integrity-test
 
 setup:
 	@echo "==> Creating venv + installing pinned deps (garak, llm-guard, checkov)"
@@ -27,6 +27,13 @@ trace-export:
 charts:
 	@echo "==> Rendering LinkedIn-friendly chart PNGs"
 	python3 scripts/render_charts.py
+
+text-integrity:
+	@echo "==> Running Watermark and Integrity Scanner"
+	python3 tools/text-integrity/scan.py --root . --fail-high
+
+text-integrity-test:
+	python3 -m unittest discover -s tools/text-integrity/tests -v
 
 clean:
 	@echo "==> Tearing down the optional docker-compose service (if you ran 'make up')"

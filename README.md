@@ -84,6 +84,25 @@ make trace-export   # optional: push the run trace to Langfuse, if creds are set
   --probes dan.DanInTheWild --parallel_attempts 4 --seed 42
 ```
 
+## Optional security checks
+
+The **Watermark and Integrity Scanner** is a separate repository check; it is
+not part of the agent demo or its findings report.
+
+```bash
+make text-integrity       # scan tracked text for high-risk hidden Unicode
+make text-integrity-test  # run scanner tests
+```
+
+For an isolated local run, `tools/text-integrity/run-incus.sh` scans tracked
+text files in the current checkout in an ephemeral Incus Python OCI container.
+See the [Watermark and Integrity Scanner instructions](tools/text-integrity/README.md)
+for requirements and report output options.
+
+It checks structural Unicode/C2PA signals; it cannot verify provider-keyed
+watermarks or determine whether text was AI-generated.
+See [`tools/text-integrity/README.md`](tools/text-integrity/README.md).
+
 `docker-compose.yml`/`make up` are left in the repo as an *optional* path for anyone who
 wants LLM Guard running as a real hosted service instead of the in-process library — they
 are not what produced the findings below.
