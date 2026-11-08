@@ -11,7 +11,7 @@ up:
 	docker compose up -d --build
 
 demo:
-	@echo "==> Running secured agent loop (sandbox only)"
+	@echo "==> Running guarded model-generation loop (sandbox only)"
 	.venv/bin/python scripts/run_demo.py $(ARGS)
 
 report:

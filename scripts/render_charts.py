@@ -52,7 +52,7 @@ def chart_overview(data: dict) -> Path:
     masked = sum(1 for r in rows if r["input_guard"]["secret_masked"])
 
     fig, ax = plt.subplots(figsize=(10, 3.2))
-    cats = ["prompts with\nrisk indicators"]
+    cats = ["prompts with\nraw detector hits"]
     ax.barh(cats[0], base, color=RED, height=0.5, label="baseline (unguarded)")
     ax.barh(cats[0], gd, color=BLUE, height=0.5, label="guarded")
     ax.text(base - 0.18, 0, f"{base}/{n}", ha="right", va="center", color="white", fontweight="bold")
@@ -60,13 +60,16 @@ def chart_overview(data: dict) -> Path:
     ax.set_xlim(0, n)
     ax.set_xlabel(f"of {n} adversarial prompts")
     ax.legend(loc="lower right", frameon=False)
-    ax.set_title("Guard delta — risk indicators in agent output", loc="left", fontsize=14, fontweight="bold")
+    ax.set_title("Guard delta — raw detector hits in generated output", loc="left", fontsize=14, fontweight="bold")
     ax.set_yticks([])
     # y is in axes-fraction coords (transform=ax.transAxes): -0.02 sat right on top of the
     # tick labels/axis spine, visually striking through this caption. Pushed well below both
     # the ticks and the xlabel, and bbox_inches="tight" on save keeps it from getting clipped.
     fig.text(0.02, -0.32, f"input guard: {blocks} prompt-injections blocked · {masked} secrets masked",
              transform=ax.transAxes, fontsize=10, color=SLATE)
+    if any(r["id"] == "P1-05" and "secret-assignment" in r["baseline"]["hard_indicators"] for r in rows):
+        fig.text(0.02, -0.43, "P1-05 baseline hit is a known false-positive keyword match",
+                 transform=ax.transAxes, fontsize=10, color=SLATE)
     fig.tight_layout()
     out = CHARTS / "overview.png"
     fig.savefig(out, dpi=160, bbox_inches="tight")
@@ -96,7 +99,10 @@ def chart_by_prompt(data: dict) -> Path:
     ax.set_yticklabels(["clean", "risk"])
     ax.set_ylim(0, 1.25)
     ax.legend(loc="upper right", frameon=False)
-    ax.set_title("Risk indicator by prompt — baseline vs guarded", loc="left", fontsize=14, fontweight="bold")
+    ax.set_title("Raw detector hit by prompt — baseline vs guarded", loc="left", fontsize=14, fontweight="bold")
+    if any(r["id"] == "P1-05" and "secret-assignment" in r["baseline"]["hard_indicators"] for r in rows):
+        fig.text(0.01, 0.01, "P1-05 baseline hit is a known false-positive keyword match",
+                 transform=fig.transFigure, fontsize=10, color=SLATE)
     ax.grid(axis="y", alpha=0.25)
     fig.tight_layout()
     out = CHARTS / "by-prompt.png"

@@ -2,34 +2,37 @@
 
 > Target: ~200 words + a screenshot of the dashboard + repo link. Replace brackets.
 
-I gave an AI coding agent *commit access*. Then I hardened the pipeline it ships through,
-and red-teamed the agent itself — all inside my own sandbox.
+I tested a guarded AI coding-agent generation loop, then red-teamed the underlying model —
+all inside my own sandbox. The harness checks generated responses; it does not run an
+autonomous agent with terminal or commit access.
 
 What that loop looks like now:
 
 → Input guard (prompt injection / PII / secrets) at the boundary
-→ The agent generates, a Checkov gate rejects bad IaC output and forces a repair pass
+→ The model generates responses; a Checkov gate checks Terraform output and requests one repair pass
 → Seen through, and fixed, in the same loop
 → Every decision recorded in a per-run trace — because "it's fine" isn't a security finding; evidence is
 
-Eight adversarial prompts, baseline vs guarded, self-hosted model, all reproducible:
+Eight adversarial prompts, baseline vs guarded, self-hosted model; saved reports document
+this run, but reruns may produce different model output:
 
-→ Three of 8 baseline outputs tripped a hard-risk indicator (a leaked key shape, an
-  attacker-controlled URL, and one detector false-positive on a refusal I kept in the count
-  instead of quietly dropping) → 1 of 8 behind the guard
+→ Three of 8 baseline outputs tripped a raw detector (a key shape, an attacker-controlled
+  URL, and one known false-positive keyword hit) → 1 of 8 guarded outputs; excluding the
+  false positive, the baseline had 2 substantive indicators
 → The input guard blocked 2 prompt-injection attempts outright and masked a seed key in 1
 → The URL case slipped through both arms in run one — so I added a URL blocklist and re-ran
   the prompt: blocked. The gap, the fix, and the re-run are all in the report
 → Pre-launch red-team: garak's DanInTheWild probe hit the raw model under a
   mitigation-bypass detector — 28.1% of 1280 judged output slices got through, which is
-  why the guard sits before the agent, not after the damage
+  why the guard sits before model responses reach downstream steps
 
-I also let the agent write Terraform and ran it through Checkov: the gate refused to
+I also had the model generate Terraform and ran it through Checkov: the gate refused to
 evaluate the first draft (parse error on the model output) and still rejected it after one
-repair round — no plan got approved without passing the gate.
+repair round — no generated Terraform passed the gate.
 
 Honest numbers, honest failures, local model, local config — nothing against any system but
-this one, and `make demo` reproduces the whole report from a pinned manifest.
+this one. `make demo` reruns the harness, but the model tag is not an immutable digest and
+the output is not guaranteed to match this report.
 
 This is exactly the kind of "show, don't tell" footing AI-coding security needs.
 
