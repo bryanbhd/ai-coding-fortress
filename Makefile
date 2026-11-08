@@ -29,7 +29,7 @@ charts:
 	python3 scripts/render_charts.py
 
 text-integrity:
-	@echo "==> Scanning tracked text for high-risk hidden Unicode"
+	@echo "==> Running Watermark and Integrity Scanner"
 	python3 tools/text-integrity/scan.py --root . --fail-high
 
 text-integrity-test:

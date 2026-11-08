@@ -212,7 +212,7 @@ def main() -> int:
     try:
         report = scan_repository(args.root, args.tracked_list)
     except (OSError, RuntimeError, ValueError) as error:
-        print(f"watermark scan failed: {type(error).__name__}", file=sys.stderr)
+        print(f"Watermark and Integrity Scanner failed: {type(error).__name__}", file=sys.stderr)
         return 2
 
     rendered = json.dumps(report, indent=2, sort_keys=True)
@@ -221,14 +221,14 @@ def main() -> int:
         args.output.write_text(rendered + "\n", encoding="utf-8")
 
     print(
-        "text integrity scan: "
+        "Watermark and Integrity Scanner: "
         f"{report['files_scanned']} tracked text files scanned, "
         f"{len(report['files_with_signals'])} file(s) with signals, "
         f"{report['high_risk_signal_count']} high-risk signal(s), "
         f"{len(report['errors'])} scan error(s)"
     )
     if report["errors"]:
-        print("text integrity scan incomplete; see the JSON report for affected paths", file=sys.stderr)
+        print("scan incomplete; see the JSON report for affected paths", file=sys.stderr)
         return 2
     if args.fail_high and report["high_risk_signal_count"]:
         print("text integrity gate failed on high-risk Unicode channels", file=sys.stderr)

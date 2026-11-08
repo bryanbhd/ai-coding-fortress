@@ -1,4 +1,4 @@
-name: Text integrity
+name: Watermark and Integrity Scanner
 
 on:
   push:
@@ -27,7 +27,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           persist-credentials: false
-      - name: Scan tracked text files
+      - name: Run Watermark and Integrity Scanner
         run: |
           mkdir -p "$RUNNER_TEMP/text-integrity"
           python3 tools/text-integrity/scan.py \

@@ -1,11 +1,11 @@
-# Text integrity and provenance scan
+# Watermark and Integrity Scanner
 
-This tool packages the upstream `detect-text-watermark` skill to scan tracked
-text/source files for hidden Unicode channels and C2PA text-manifest indicators.
-It does **not** establish whether content was AI-generated or detect a keyed
-model watermark.
+This tool scans tracked text/source files for structural Unicode channels and
+C2PA text-manifest indicators. These are potential watermark or text-integrity
+signals; the scan does **not** establish whether content was AI-generated or
+detect a keyed model watermark.
 
-The upstream detector scripts are vendored from
+Its upstream detector scripts are vendored from
 [`neeeophytee/ai-watermarks-reality-check`](https://github.com/neeeophytee/ai-watermarks-reality-check)
 at commit `0e8eb630b20f2b03ced0e77f3d650012a4ae48a1`. They are licensed under
 AGPL-3.0; see `upstream/LICENSE`. The report contains paths and signal metadata
