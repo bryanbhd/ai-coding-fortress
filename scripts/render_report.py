@@ -7,15 +7,15 @@ the report reflects the actual gate output (avoids stale/misread summaries).
 from __future__ import annotations
 
 import json
+import shutil
 import subprocess
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from run_demo import ROOT  # noqa: E402
+ROOT = Path(__file__).resolve().parent.parent
 
 REPORTS_DIR = ROOT / "reports"
-CHECKOV = ROOT / ".venv" / "bin" / "checkov"
+CHECKOV = Path(shutil.which("checkov") or ROOT / ".venv" / "bin" / "checkov")
 
 
 def latest_run() -> Path:
@@ -60,10 +60,15 @@ def main() -> None:
     rows = data["results"]
     sum_base = sum(1 for r in rows if r["baseline"]["hard_indicators"])
     sum_gd = sum(1 for r in rows if r["guarded"]["hard_indicators"])
+    p105_false_positive = any(
+        r["id"] == "P1-05" and "secret-assignment" in r["baseline"]["hard_indicators"]
+        for r in rows
+    )
+    sum_base_substantive = sum_base - int(p105_false_positive)
     sum_blocked = sum(1 for r in rows if r["input_guard"]["injection_blocked"])
     sum_masked = sum(1 for r in rows if r["input_guard"]["secret_masked"])
 
-    out = ["# Findings — AI Coding Agent Guard Evaluation\n"]
+    out = ["# Findings — Guarded Prompt Evaluation\n"]
     out.append(f"- **run** `{m['run']}` · **model** `{m['model']}` · **date** {m['date']}")
     g = m.get("guard", {})
     c = m.get("checks", {})
@@ -72,8 +77,8 @@ def main() -> None:
     out.append("")
     out.append(f"## Summary")
     out.append("")
-    out.append(f"- {len(rows)} adversarial prompts run against both a **baseline** (unguarded) agent and the **guarded** agent")
-    out.append(f"- baseline emitted a hard indicator in **{sum_base}/{len(rows)}** outputs; guarded agent in **{sum_gd}/{len(rows)}**")
+    out.append(f"- {len(rows)} adversarial prompts evaluated in baseline and guarded response-generation paths")
+    out.append(f"- raw detector hits: baseline **{sum_base}/{len(rows)}** and guarded **{sum_gd}/{len(rows)}**; the baseline includes one documented false positive, leaving **{sum_base_substantive}/{len(rows)}** substantive baseline indicators")
     out.append(f"- input guard **blocked** {sum_blocked} prompt-injection attempts and **masked** secrets in {sum_masked} prompts")
     out.append("")
     out.append("| prompt | angle | input guard | baseline | guarded | out-mask |")
@@ -111,14 +116,18 @@ def main() -> None:
             tf2 = ROOT / art / f"{r['id']}-iter2.tf"
             c1 = checkov_on(tf1) if tf1.exists() else r["checkov"].get("iteration1", {})
             out.append(f"### {r['id']} — `{r['angle']}`")
+            parsing_errors = c1.get("parsing_errors")
+            resource_count = c1.get("resource_count")
             out.append(f"- iteration 1 (draft): failed={c1.get('failed')} · passed={c1.get('passed')} · "
-                       f"parsing_errors={c1.get('parsing_errors')} · resource_count={c1.get('resource_count')}")
+                       f"parsing_errors={parsing_errors if parsing_errors is not None else 'not recorded'} · "
+                       f"resource_count={resource_count if resource_count is not None else 'not recorded'}")
             if c1.get("check_ids"):
                 out.append(f"  - policy failures: {', '.join(c1['check_ids'])}")
             c2 = checkov_on(tf2) if tf2.exists() else r["checkov"].get("iteration2")
             if c2 is not None:
+                parsing_errors = c2.get("parsing_errors")
                 out.append(f"- iteration 2 (after feedback): failed={c2.get('failed')} · passed={c2.get('passed')} · "
-                           f"parsing_errors={c2.get('parsing_errors')}")
+                           f"parsing_errors={parsing_errors if parsing_errors is not None else 'not recorded'}")
                 if c2.get("check_ids"):
                     out.append(f"  - policy failures: {', '.join(c2['check_ids'])}")
             out.append("")
@@ -131,7 +140,7 @@ def main() -> None:
     if residual:
         out.append("## Residual risks (guard did not change the outcome)\n")
         out.append("These cases keep their risky indicator in both arms; the output guard does not cover them. "
-                   "They are surfaced here deliberately — guards are not a silver bullet, and this is upstream of any policy gate:\n")
+                   "They are surfaced here deliberately — guards are not a silver bullet. This harness does not execute generated code or commit changes:\n")
         out.append("| prompt | angle | indicator |")
         out.append("|---|---|---|")
         for r in residual:
@@ -144,15 +153,15 @@ def main() -> None:
     out.append("")
     out.append(f"> {m.get('note', '')}" if m.get("note", "") else "> —")
     out.append("> Model runs on a self-hosted local Ollama instance inside an isolated sandbox; the findings "
-               "are a demonstration of guard-through-gate behavior, not a vendor benchmark. Identifiers in the "
+           "demonstrate guarded response generation and a Terraform check, not an end-to-end agent or vendor benchmark. Identifiers in the "
                "prompts are fabricated examples.")
 
     out.append("")
     out.append("## Adjoining artifacts")
     out.append("")
     out.append("- **Red-team (base model):** `reports/garak-summary.md` — `dan.DanInTheWild` against the raw "
-               "model, 28.1% mitigation-bypass success on 1280 slices (garak 0.17, seed 42); the guard delta is "
-               "what the rows above measure.")
+               "model; the mitigation-bypass detector flagged 28.1% of 1280 judged output slices (garak 0.17, "
+               "seed 42). This separate detector result is not directly comparable to the guard evaluation.")
     out.append("- **Hardening re-run:** `reports/hardening.md` — the P1-07 residual case re-run with the URL "
                "blocklist active (run `make demo ARGS=\"--ids P1-07\"` then `make report`; plain `make` has no "
                "arg-passthrough by default, so `make demo -- --ids P1-07` silently runs the full 8-prompt set "

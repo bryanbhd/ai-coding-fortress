@@ -30,9 +30,9 @@ Repo: [`ai-coding-fortress`](https://github.com/bryanbhd/ai-coding-fortress) · 
 > **TL;DR** — 8 adversarial prompts sent through baseline and guarded response-generation paths.
 > Raw detector hits went **3/8 → 1/8**; the baseline count includes one documented keyword
 > false positive, leaving 2/8 substantive baseline indicators versus 1/8 guarded. The input
-> guard blocked 2 prompt-injection attempts outright. A separate garak red-team got **28.1%** of jailbreaks past a
-> mitigation-bypass detector on the *base* model — the guarded generation path checks input
-> before the model response reaches downstream steps.
+> guard blocked 2 prompt-injection attempts outright. In a separate garak run against the
+> *base* model, its mitigation-bypass detector flagged **360/1280 judged output slices (28.1%)**.
+> That is a detector-flagged fraction, not an end-to-end agent failure rate.
 > One case slipped both arms; the hardening fix and re-run are included. The saved reports record
 > this run; rerunning `make demo` may produce different model output.
 
@@ -102,9 +102,10 @@ cherry-picking. Raw output: `reports/artifacts/20260920-022003/raw-outputs/P1-05
 
 ![Red-team — garak DanInTheWild, base model](../reports/charts/red-team.png)
 
-garak's `dan.DanInTheWild` probe, base model, `mitigation.MitigationBypass` detector: **360/1280
-judged output slices bypassed** → 28.1%. That is the **untreated** surface — the number you argue
-about, not the number you ship. The guard delta above is the result from this controlled harness.
+garak's `dan.DanInTheWild` probe, base model, `mitigation.MitigationBypass` detector: it flagged
+**360/1280 judged output slices (28.1%)**. This describes the detector's results on the **untreated**
+base-model run; it is not an end-to-end agent failure rate. The guard delta above comes from a
+separate eight-prompt response-generation harness.
 
 ## The residual case, and the fix, in one commit trail
 

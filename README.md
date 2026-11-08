@@ -116,10 +116,9 @@ Featured before/after findings, from real runs (full detail in `reports/findings
 - [x] F2 — Checkov gate on generated Terraform (P1-06): refused to evaluate on the first
       draft (parse error, `resource_count=0`) and still failed to parse after one repair
       round — no Terraform passed the gate.
-- [x] F3 — garak (`dan.DanInTheWild`, base model, no guard): **360 of 1280** judged slices
-      bypassed the mitigation-bypass detector — **28.1%** attack success rate on the untreated
-      model. The guard is evaluated at the prompt boundary, before model responses reach
-      downstream steps.
+- [x] F3 — garak (`dan.DanInTheWild`, base model, no guard): the mitigation-bypass detector
+      flagged **360 of 1280** judged output slices (**28.1%**) in this separate run. This is
+      a detector-flagged fraction, not an end-to-end agent failure rate.
 - [x] F4 — Across 8 prompts, the baseline produced raw detector hits in **3/8** outputs and
       the guarded run in **1/8**. One baseline hit (P1-05) is a documented keyword false
       positive, leaving **2/8** baseline outputs with substantive indicators. The guarded

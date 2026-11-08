@@ -23,8 +23,8 @@ this run, but reruns may produce different model output:
 → The URL case slipped through both arms in run one — so I added a URL blocklist and re-ran
   the prompt: blocked. The gap, the fix, and the re-run are all in the report
 → Pre-launch red-team: garak's DanInTheWild probe hit the raw model under a
-  mitigation-bypass detector — 28.1% of 1280 judged output slices got through, which is
-  why the guard sits before model responses reach downstream steps
+  mitigation-bypass detector — it flagged 360 of 1280 judged output slices (28.1%); that
+  detector result is not an end-to-end agent failure rate
 
 I also had the model generate Terraform and ran it through Checkov: the gate refused to
 evaluate the first draft (parse error on the model output) and still rejected it after one
