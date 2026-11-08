@@ -1,0 +1,44 @@
+name: Text integrity
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "tools/text-integrity/**"
+      - ".github/workflows/text-integrity.yml"
+      - "Makefile"
+      - "README.md"
+  pull_request:
+    branches: [main]
+    paths:
+      - "tools/text-integrity/**"
+      - ".github/workflows/text-integrity.yml"
+      - "Makefile"
+      - "README.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Scan tracked text files
+        run: |
+          mkdir -p "$RUNNER_TEMP/text-integrity"
+          python3 tools/text-integrity/scan.py \
+            --root "$GITHUB_WORKSPACE" \
+            --output "$RUNNER_TEMP/text-integrity/report.json" \
+            --fail-high
+        env:
+          PYTHONDONTWRITEBYTECODE: "1"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: text-integrity-report
+          path: ${{ runner.temp }}/text-integrity/report.json
+          if-no-files-found: warn
