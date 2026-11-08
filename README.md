@@ -77,13 +77,21 @@ is an Ollama endpoint with the model pinned in `.env` (`OLLAMA_MODEL`) already p
 make setup     # venv + pinned deps (garak, llm-guard, checkov)
 make demo      # run the baseline-vs-guarded loop, emit reports/findings-<run>.json
 make report    # render reports/findings.md
-make text-integrity # scan tracked text for high-risk hidden Unicode channels
-make text-integrity-test # run scanner tests
 make trace-export   # optional: push the run trace to Langfuse, if creds are set
 
 # separately — the red-team pass behind finding F3:
 .venv/bin/garak --model_type ollama --model_name qwen3-coder:30b \
   --probes dan.DanInTheWild --parallel_attempts 4 --seed 42
+```
+
+## Optional security checks
+
+The text-integrity scanner is a separate repository check; it is not part of
+the agent demo or its findings report.
+
+```bash
+make text-integrity       # scan tracked text for high-risk hidden Unicode
+make text-integrity-test  # run scanner tests
 ```
 
 The text-integrity scan checks structural Unicode/C2PA signals; it cannot
