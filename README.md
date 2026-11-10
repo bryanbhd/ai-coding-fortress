@@ -125,6 +125,10 @@ Featured before/after findings, from real runs (full detail in `reports/findings
       residual (P1-07, malicious URL) was addressed in a separate URL-blocklist hardening
       re-run — gap, fix, and re-run are recorded in `reports/hardening.md`.
 
+Lessons on controlling agents themselves (permissions over instructions, state-based
+scoring, advisory judges, stale-agent counts) are in
+[`docs/findings-agent-controls.md`](docs/findings-agent-controls.md).
+
 ## Rules of the road
 
 1. **No vendor claims** — everything is "my sandbox, my config, my model."
