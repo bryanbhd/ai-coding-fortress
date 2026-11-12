@@ -36,8 +36,7 @@ were clean. The raw transcripts were not. The counts are from before the cleanup
 Vault tokens (`lookup-self` [3]) and GitHub tokens (`GET /user`) can be tested safely. All 22 were dead, and a
 control with a known-valid token showed the check works.
 
-> **Not checked:** AWS key IDs, AppRole secret IDs, URL passwords and generic key=value secrets. They stay open
-> until rotated or traced to an owner.
+Other kinds of secret, such as cloud key IDs and passwords inside URLs, can't be tested this way. For those the fix is rotation, not testing.
 
 ## Cleaning it safely
 
