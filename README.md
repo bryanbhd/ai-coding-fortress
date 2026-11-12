@@ -16,6 +16,9 @@ The output is an evidence-linked findings report for the specific run.
 place. (Browsing the repo on GitHub instead? The same file renders natively at
 [`linkedin/article.md`](linkedin/article.md).)
 
+**Related:** [I went into the sandbox blind. My AI agents were keeping my secrets.](https://security.bryandebnam.com/docs/agent-history-secrets.html)
+— what agent history holds, and how the IDE and the pipeline each catch it.
+
 ## Why this exists
 
 AI coding assistants turn an LLM into a person with commit access. That gives a coding
