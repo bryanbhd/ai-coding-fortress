@@ -1,5 +1,7 @@
 # I went into the sandbox blind. My AI agents were keeping my secrets.
 
+By Bryan Debnam · [LinkedIn](https://www.linkedin.com/in/bryanhd)
+
 I went into the sandbox blind, the way I believe many people start off their AI journey.
 
 This comes from my home R&D fleet, a set of self-hosted machines where I test AI tooling before trusting it
