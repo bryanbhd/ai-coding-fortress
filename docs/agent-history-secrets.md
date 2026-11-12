@@ -40,6 +40,8 @@ control with a known-valid token showed the check works.
 
 Other kinds of secret, such as cloud key IDs and passwords inside URLs, can't be tested this way. For those the fix is rotation, not testing.
 
+**Update:** I then looked at the other kinds. The one cloud key ID was the vendor's own documentation example, not a real credential. The two AppRole secret IDs were already gone when I checked them against Vault. Passwords inside URLs are still untested: most were placeholders, and the rest sit on my own internal hosts.
+
 ## Cleaning it safely
 
 1. **Stage scrubbed copies.** Each secret becomes `[REDACTED:<fingerprint>]`, a keyed hash. Originals are untouched.
