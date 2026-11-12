@@ -54,6 +54,8 @@ and calling 18 values "real by shape" before testing them. Shape tells you what 
 
 A scrub does not recall anything already sent to a model provider. Rotate what is live.
 
+The chat itself is episodic memory too: anything you print in a live session goes to the model provider as well as to your disk, so never print a secret in the first place.
+
 ## Takeaways
 
 - Treat agent history as a store that holds secrets.
